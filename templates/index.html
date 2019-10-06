@@ -1,0 +1,20 @@
+{% block head %}
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
+{% endblock %}
+
+{% block body %}
+    <p id="user_uid">No UID</p>
+    <p id="user_name">No User</p>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            namespace = '/conn';
+            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+            socket.on('server_response', function (res) {
+                console.log(res.data);
+                $('#user_uid').text(res.data.user_logged.uid);
+                $('#user_name').text(res.data.user_logged.name);
+            })
+        })
+    </script>
+{% endblock %}
