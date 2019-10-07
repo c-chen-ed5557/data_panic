@@ -6,14 +6,19 @@
 {% block body %}
     <p id="user_uid">No UID</p>
     <p id="user_name">No User</p>
+	<p id="user_result">No Result</p>
+	<video autoplay='autoplay'>
+			<source src="./media/movie.mp4" type="video/mp4">
+	</video>
     <script type="text/javascript">
         $(document).ready(function () {
             namespace = '/conn';
             var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
             socket.on('server_response', function (res) {
                 console.log(res.data);
-                $('#user_uid').text(res.data.user_logged.uid);
-                $('#user_name').text(res.data.user_logged.name);
+                $('#user_uid').html(res.data.user_uid);
+                $('#user_name').html(res.data.user_name);
+				$('#user_result').html(res.data.user_result);
             })
         })
     </script>
