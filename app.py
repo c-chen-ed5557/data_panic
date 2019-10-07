@@ -4,6 +4,7 @@ from threading import Lock
 from serial_reader import ser
 from flask_sqlalchemy import SQLAlchemy
 import api
+import os
  
 async_mode = None
 app = Flask(__name__)
@@ -22,6 +23,10 @@ logged_user = {
 
 
 db = SQLAlchemy(app)
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+app.config['SQLALCHEMY_DATABASE_URI'] ='sqlite:///' + os.path.join(basedir, 'data.sqlite')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 @app.route('/')
 def index():
@@ -46,7 +51,7 @@ def background_thread():
             logged_user['user_uid'] = user_read
             logged_user['log_status'] = True
 
-            if '39 )70 17 2D' in user_read:
+            if '39 70 17 2D' in user_read:
                 logged_user['user_name'] = 'C.CHEN'
             elif '8B 15 D6 15' in user_read:
                 logged_user['user_name'] = 'X.FENG'
