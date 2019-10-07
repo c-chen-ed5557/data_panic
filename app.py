@@ -50,22 +50,17 @@ def background_thread():
             logged_user['user_result'] = query_result
             logged_user['user_uid'] = user_read
             logged_user['log_status'] = True
-
-            if '39 70 17 2D' in user_read:
-                logged_user['user_name'] = 'C.CHEN'
-            elif '8B 15 D6 15' in user_read:
-                logged_user['user_name'] = 'X.FENG'
-            else:
-                logged_user['user_name'] = 'No User'
-
             socketio.emit('server_response', {'data': logged_user}, namespace='/conn')
 
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
-    uid = db.Column(db.String(64), unique=True, index=True) 
+    uid = db.Column(db.String(64), unique=True, index=True)
 
+@app.shell_context_processor
+def make_shell_context():
+    return dict(db=db, User=User)
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
