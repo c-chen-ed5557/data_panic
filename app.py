@@ -3,6 +3,7 @@ from flask_socketio import SocketIO, emit
 from threading import Lock
 from serial_reader import ser
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import api
 import os
  
@@ -13,12 +14,10 @@ socketio = SocketIO(app)
 thread = None
 thread_lock = Lock()
 
-logged_user = {
-        'log_status': False,
+user_logged = {
         'user_uid': '',
         'user_name': '',
         'user_query': '',
-        'user_resource': 5
         }
 
 
@@ -43,14 +42,22 @@ def background_thread():
     while True:
         socketio.sleep(1)
 
-        user_read = ser.readline().decode('utf-8')
+        uid_read = str(ser.readline().decode('utf-8'))[1:12]
 
-        if user_read != logged_user['user_uid']:
-            query_result = api.request_tweets()
-            logged_user['user_result'] = query_result
-            logged_user['user_uid'] = user_read
-            logged_user['log_status'] = True
-            socketio.emit('server_response', {'data': logged_user}, namespace='/conn')
+        user_stored = User.query.filter_by(uid=uid_read).first()
+
+        if user_stored is None:
+            print('This user is not registered.')
+        else:
+            user_logged['user_uid'] = user_stored.uid
+            user_logged['user_name'] = user_stored.username
+
+       # if user_read != logged_user['user_uid']:
+       #     query_result = api.request_tweets()
+       #     logged_user['user_result'] = query_result
+        #    logged_user['user_uid'] = user_read
+         #   logged_user['log_status'] = True
+            socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
 
 class User(db.Model):
     __tablename__ = 'users'
