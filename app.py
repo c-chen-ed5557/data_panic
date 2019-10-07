@@ -64,6 +64,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
     uid = db.Column(db.String(64), unique=True, index=True)
+    resources = db.Column(db.Integer)
 
 @app.shell_context_processor
 def make_shell_context():
