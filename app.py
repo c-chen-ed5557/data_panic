@@ -20,6 +20,7 @@ user_logged = {
         'user_uid': '',
         'user_name': '',
         'user_query': '',
+        'user_choice': ''
         }
 
 
@@ -63,7 +64,19 @@ def background_thread():
 
         for k, v in button_state.items():
             if v == False:
-                print(k + ' is pressed')
+                if k == 'text_button':
+                    user_logged['user_choice'] = 'text'
+                elif k == 'image_button':
+                    user_logged['user_choice'] = 'image'
+                elif k == 'sound_button':
+                    user_logged['user_choice'] = 'sound'
+                else:
+                    user_logged['user_choice'] = 'video'
+    
+
+
+        if button_state == False:
+            user_logged['user_choice'] = 'text'
 
         socketio.sleep(1)
 
