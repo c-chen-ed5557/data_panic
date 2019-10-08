@@ -4,6 +4,8 @@ from threading import Lock
 from serial_reader import ser
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+import RPi.GPIO as GPIO
+import time
 import api
 import os
  
@@ -27,6 +29,16 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] ='sqlite:///' + os.path.join(basedir, 'data.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Set GPIO mode
+GPIO.setmode(GPIO.BCM)
+
+# Set GPIO pins for buttons
+GPIO.setup(18, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+GPIO.setup(23, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+GPIO.setup(24, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+GPIO.setup(25, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -40,6 +52,19 @@ def connect():
 
 def background_thread():
     while True:
+
+        # Judge which button
+        button_state = {
+                'text_button': GPIO.input(18),
+                'image_button': GPIO.input(23),
+                'sound_button': GPIO.input(24),
+                'video_button': GPIO.input(25)
+                }
+
+        for k, v in button_state.items():
+            if v == False:
+                print(k + ' is pressed')
+
         socketio.sleep(1)
 
         uid_read = str(ser.readline().decode('utf-8'))[1:12]
