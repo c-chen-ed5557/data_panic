@@ -40,6 +40,14 @@ GPIO.setup(24, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 GPIO.setup(25, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 
 
+# Check the resources the logged user have
+# If the remainder is more than required, trigger api query
+def check_resources(user, requirement):
+    if user.user_resource < requirement:
+        return False
+    else:
+        return True
+
 @app.route('/')
 def index():
     return render_template('index.html')
