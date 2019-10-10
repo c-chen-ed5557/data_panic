@@ -35,10 +35,11 @@ def print_news():
         printer.print("Opps! It seems we did not find anything. What a pity.")
         printer.feed(2)
     else:
-        printer.print('Content: ' + str(parse_string(data['content'])))
+        printer.print('Content: ' + str(data['content']))
         printer.feed(2)
 
-def parse_string(string):
-    string = string.encode('ascii', 'ignore').decode('ascii')
-    return string
-
+def print_tweets():
+    data = request_tweets()
+    printer.print(str(data['username']) + ' says:')
+    printer.feed(1)
+    printer.print(str[data['content']])

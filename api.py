@@ -1,10 +1,9 @@
 import requests
 import random
-import spotipy
-import spotipy.util as util
+# import spotipy
+# import spotipy.util as util
 import ast
 from twython import Twython
-from InstagramAPI import InstagramAPI
 from auth import (
     consumer_key,
     consumer_secret,
@@ -38,9 +37,15 @@ def request_news():
     data = {
             'title': news['title'],
             'author': news['author'],
-            'content': news['content']
+            'content': parse_news_content(news['content'])
            }
     return data
+
+# The requested news contents contain some Unicode or Latin1 characters.
+# They need to be cleaned via this function.
+def parse_news_content(string):
+    string = string.encode('ascii', 'ignore').decode('ascii')
+    return string
 
 # This is to request a random quote via quotes api.
 def request_quotes():
@@ -62,24 +67,34 @@ def parse_quotes(string):
     return parsed_dict
 
 # This is to request a tweet message from Twitter api.
-def request_tweets():
+def request_tweets(q_list=['python', 'rock', 'food', 'joker']):
     # topics = ['']
     twitter = Twython(consumer_key,
                       consumer_secret,
                       access_token,
                       access_token_secret)
-    q_list = ['python', 'rock', 'food', 'joker']
-    results = twitter.cursor(twitter.search, q=int(random.random()*len(q_list)))
-    print(type(next(results)['text']))
-    return next(results)['text']
+    keyword = q_list[int(random.random()*len(q_list))]
+    results_generator = twitter.cursor(twitter.search, q=keyword)
+    result = next(results_generator)
+
+    data = {
+        'username': result['user']['name'],
+        'content': result['text'],
+        'keyword': keyword
+    }
+
+    return data
+
+def parse_tweets_content():
+    pass
 
 # def request_videos():
 
 # def request_music():
 
 
-def request_music():
-    sp = spotipy.Spotify()
-    token = util.prompt_for_user_token(client_id, client_secret)
+# def request_music():
+#     sp = spotipy.Spotify()
+#     token = util.prompt_for_user_token(client_id, client_secret)
     # if token:
         # sp.recommendations(auth=token)
