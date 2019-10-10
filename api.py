@@ -2,6 +2,7 @@ import requests
 import random
 import spotipy
 import spotipy.util as util
+import ast
 from twython import Twython
 from InstagramAPI import InstagramAPI
 from auth import (
@@ -34,6 +35,12 @@ def request_news():
     response = requests.get(url)
     output = response.json()['articles']
     news = output[int(random.random() * len(output))]
+    data = {
+            'title': news['title'],
+            'author': news['author'],
+            'content': news['content']
+           }
+    return data
 
 # This is to request a random quote via quotes api.
 def request_quotes():
@@ -44,7 +51,15 @@ def request_quotes():
         'x-rapidapi-key': "e77e401534msha5ef44aa585ba64p17a067jsne00d370ea234"
     }
     response = requests.request("GET", url, headers=headers)
-    print(response.text['quote'])
+    data = parse_quotes(response.text)
+    return data
+
+# The quotes requested are strings which represent dicts.
+# They need to be turned into dicts with this function.
+# User ast module from Python 2.6
+def parse_quotes(string):
+    parsed_dict = ast.literal_eval(string)
+    return parsed_dict
 
 # This is to request a tweet message from Twitter api.
 def request_tweets():
@@ -55,7 +70,7 @@ def request_tweets():
                       access_token_secret)
     q_list = ['python', 'rock', 'food', 'joker']
     results = twitter.cursor(twitter.search, q=int(random.random()*len(q_list)))
-    print(next(results)['text'])
+    print(type(next(results)['text']))
     return next(results)['text']
 
 # def request_videos():
