@@ -23,7 +23,6 @@ def print_quotes():
 def print_news():
     data = request_news()
     print(data['content'])
-
     printer.print('Title: ' + str(data['title']))
     printer.feed(2)
     printer.print('Author: ' + str(data['author']))
@@ -42,4 +41,5 @@ def print_tweets():
     data = request_tweets()
     printer.print(str(data['username']) + ' says:')
     printer.feed(1)
-    printer.print(str[data['content']])
+    printer.print(str(data['content']))
+    printer.feed(2)
