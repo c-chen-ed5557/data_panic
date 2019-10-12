@@ -5,6 +5,7 @@ from serial_reader import ser
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import RPi.GPIO as GPIO
+import printer
 import time
 import api
 import os
@@ -21,62 +22,65 @@ user_logged = {
         'user_name': '',
         'user_query': '',
         'user_choice': '',
-        'user_resources': None
+        'user_resources': None,
+        'user_status': False
         }
 
-button_counter = 0
+# button_counter = 0
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app.config['SQLALCHEMY_DATABASE_URI'] ='sqlite:///' + os.path.join(basedir, 'data.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 db = SQLAlchemy(app)
 # Set GPIO mode
 GPIO.setmode(GPIO.BCM)
 
 # Set GPIO pins for buttons
-GPIO.setup(18, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-GPIO.setup(23, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-GPIO.setup(24, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-GPIO.setup(25, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-GPIO.setup(14, GPIO.OUT)
 # GPIO.setup(18, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+# GPIO.setup(23, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+# GPIO.setup(24, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+# GPIO.setup(25, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+# GPIO.setup(14, GPIO.OUT)
+GPIO.setup(18, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 
 def my_callback(channel):
-    global button_counter
-    button_counter += 1
-    print(button_counter)
+    # print(user_logged['user_name'])
+#     data = api.request_quotes()
+#     print(data)
+#     print('Button Pressed')
+#     GPIO.output(14, GPIO.HIGH)
+    current_user = User.query.filter_by(username=user_logged['user_name']).first()
+    if current_user.resources >= 1:
+        text_requested = api.request_tweets()
+        # printer.print_tweets()
+        print(text_requested)
+        current_user.resources -= 1
+        db.session.commit()
+        print('You spend 1 point.')
+    else:
+        print('You cannot afford a text message.')
+#     else:
+#         print("You can't afford a text message!")
+
 
 GPIO.add_event_detect(18, GPIO.FALLING, callback=my_callback)
 
 # Check the resources the logged user have
 # If the remainder is more than required, trigger api query
-def check_resources(user, requirement):
-    if user.user_resource < requirement:
-        return False
-    else:
-        return True
+# def check_resources(user, requirement):
+#     if user.user_resource < requirement:
+#         return False
+#     else:
+#         return True
 
-def listen_button_event():
-    button_state = {
-        'text_button': GPIO.input(18),
-        'image_button': GPIO.input(23),
-        'sound_button': GPIO.input(24),
-        'video_button': GPIO.input(25)
-    }
+# def listen_button_event():
+#
+#     if button_state['text_button'] == False:
+#         global button_counter
+#         button_counter += 1
 
-    if button_state['text_button'] == False:
-        global button_counter
-        button_counter += 1
-        print('Button Pressed', button_counter)
-        GPIO.output(14, GPIO.LOW)
-        user_logged['user_choice'] = 'text'
-        current_user = User.query.filter_by(username=user_logged['user_name']).first()
-        if current_user.resources >= 1:
-            current_user.resources -= 1
-        else:
-            print("You can't afford a text message!")
-        db.session.commit()
 
 @app.route('/')
 def index():
@@ -91,16 +95,34 @@ def connect():
 
 def background_thread():
     while True:
-
+        db.session.commit()
         socketio.sleep(1)
         # 1. first listen for RFID read from user, do user checks etc.
-
         uid_read = str(ser.readline().decode('utf-8'))[1:12]
-        # user_stored = User.query.filter_by(uid=uid_read).first()
-        if(logIn(uid_read)):
-            socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+        # if uid_read != user_logged['user_uid']:
+        stored_user = User.query.filter_by(uid=uid_read).first()
+        if stored_user is None:
+            pass
         else:
-            print('log in failed')
+            user_logged['user_uid'] = stored_user.uid
+            user_logged['user_name'] = stored_user.username
+            user_logged['user_resources'] = stored_user.resources
+
+        socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+
+    #     uid_read = str(ser.readline().decode('utf-8'))[1:12]
+    #     # user_stored = User.query.filter_by(uid=uid_read).first()
+    #     if(logIn(uid_read)):
+    #         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+    #     else:
+    #         print('log in failed')
+    #
+    # while user_logged['user_status'] == True:
+    #     socketio.sleep(1)
+    #     print('Please Press Button')
+    #     check_user = User.query.filter_by(uid=user_logged['user_uid']).first()
+    #     print(check_user.resources)
+    #     socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
         # if user_stored is None:
         #     print('This user is not registered.')
         #     print('none')
@@ -112,20 +134,21 @@ def background_thread():
         #     user_logged['user_name'] = user_stored.username
         #     user_logged['user_resources'] = user_stored.resources
         #     socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
-def logIn(uid_read):
-    # check RFID + check if the user exists in the system
-    user_stored = User.query.filter_by(uid=uid_read).first()
-
-    if len(uid_read) >= 0:
-        if user_stored is None:
-            print('This user is not registered.')
-            return False
-        else:
-            user_logged['user_uid'] = user_stored.uid
-            user_logged['user_name'] = user_stored.username
-            user_logged['user_resources'] = user_stored.resources
-            print(user_logged)
-            return True
+# def logIn(uid_read):
+#     # check RFID + check if the user exists in the system
+#     user_stored = User.query.filter_by(uid=uid_read).first()
+#
+#     if len(uid_read) >= 0:
+#         if user_stored is None:
+#             print('This user is not registered.')
+#             return False
+#         else:
+#             user_logged['user_uid'] = user_stored.uid
+#             user_logged['user_name'] = user_stored.username
+#             user_logged['user_resources'] = user_stored.resources
+#             user_logged['user_status'] = True
+#             print(user_logged)
+#             return True
 
 class User(db.Model):
     __tablename__ = 'users'
