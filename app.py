@@ -44,8 +44,11 @@ GPIO.setmode(GPIO.BCM)
 # GPIO.setup(25, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 # GPIO.setup(14, GPIO.OUT)
 GPIO.setup(18, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+GPIO.setup(23, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+GPIO.setup(16, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+# GPIO.setup(25, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 
-def my_callback(channel):
+def request_text(channel):
     # print(user_logged['user_name'])
 #     data = api.request_quotes()
 #     print(data)
@@ -54,7 +57,7 @@ def my_callback(channel):
     current_user = User.query.filter_by(username=user_logged['user_name']).first()
     if current_user.resources >= 1:
         text_requested = api.request_tweets()
-        # printer.print_tweets()
+        printer.print_tweets()
         print(text_requested)
         current_user.resources -= 1
         db.session.commit()
@@ -64,8 +67,34 @@ def my_callback(channel):
 #     else:
 #         print("You can't afford a text message!")
 
+def request_image(channel):
+    current_user = User.query.filter_by(username=user_logged['user_name']).first()
+    if current_user.resources >= 2:
+        # printer.print_tweets()
+        print("You spent 2 points for an image!")
+        current_user.resources -= 2
+        db.session.commit()
+    else:
+        print('You cannot afford an image message.')
 
-GPIO.add_event_detect(18, GPIO.FALLING, callback=my_callback)
+def request_sound(channel):
+    current_user = User.query.filter_by(username=user_logged['user_name']).first()
+    if current_user.resources >= 3:
+        # printer.print_tweets()
+        print("You spent 3 points for a sound message!")
+        current_user.resources -= 3
+        db.session.commit()
+    else:
+        print('You cannot afford a sound message.')
+
+def request_video():
+    pass
+
+
+GPIO.add_event_detect(18, GPIO.FALLING, callback=request_text)
+GPIO.add_event_detect(23, GPIO.FALLING, callback=request_image)
+GPIO.add_event_detect(16, GPIO.FALLING, callback=request_sound)
+# GPIO.add_event_detect(25, GPIO.FALLING, callback=request_video)
 
 # Check the resources the logged user have
 # If the remainder is more than required, trigger api query

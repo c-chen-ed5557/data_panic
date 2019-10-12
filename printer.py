@@ -1,6 +1,7 @@
 import serial
 import adafruit_thermal_printer
 from api import request_tweets, request_news, request_quotes
+import random
 
 uart = serial.Serial('/dev/serial0', baudrate=9600, timeout=3000)
 ThermalPrinter=adafruit_thermal_printer.get_printer_class(1.11)
@@ -12,6 +13,11 @@ printer = ThermalPrinter(uart)
 #    printer.bold = False
 #    printer.feed(2)
 #    printer.print(request_tweets())
+def random_texts():
+    texts_list = [print_quotes(), print_news(), print_tweets()]
+    texts_list[int(random.random()*3)]
+
+
 
 def print_quotes():
     data = request_quotes()
