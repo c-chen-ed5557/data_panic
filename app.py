@@ -40,6 +40,14 @@ GPIO.setup(23, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 GPIO.setup(24, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 GPIO.setup(25, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 GPIO.setup(14, GPIO.OUT)
+# GPIO.setup(18, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+
+def my_callback(channel):
+    global button_counter
+    button_counter += 1
+    print(button_counter)
+
+GPIO.add_event_detect(18, GPIO.FALLING, callback=my_callback)
 
 # Check the resources the logged user have
 # If the remainder is more than required, trigger api query
@@ -88,24 +96,36 @@ def background_thread():
         # 1. first listen for RFID read from user, do user checks etc.
 
         uid_read = str(ser.readline().decode('utf-8'))[1:12]
-        user_stored = User.query.filter_by(uid=uid_read).first()
+        # user_stored = User.query.filter_by(uid=uid_read).first()
+        if(logIn(uid_read)):
+            socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+        else:
+            print('log in failed')
+        # if user_stored is None:
+        #     print('This user is not registered.')
+        #     print('none')
+        # elif user_stored.uid == user_logged['user_uid']:
+        #     print('same')
+        # else:
+        #     print('not same')
+        #     user_logged['user_uid'] = user_stored.uid
+        #     user_logged['user_name'] = user_stored.username
+        #     user_logged['user_resources'] = user_stored.resources
+        #     socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+def logIn(uid_read):
+    # check RFID + check if the user exists in the system
+    user_stored = User.query.filter_by(uid=uid_read).first()
 
+    if len(uid_read) >= 0:
         if user_stored is None:
             print('This user is not registered.')
+            return False
         else:
             user_logged['user_uid'] = user_stored.uid
             user_logged['user_name'] = user_stored.username
             user_logged['user_resources'] = user_stored.resources
-
-        listen_button_event()
-        # listen_button_event()
-
-       # if user_read != logged_user['user_uid']:
-       #     query_result = api.request_tweets()
-       #     logged_user['user_result'] = query_result
-        #    logged_user['user_uid'] = user_read
-         #   logged_user['log_status'] = True
-        socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+            print(user_logged)
+            return True
 
 class User(db.Model):
     __tablename__ = 'users'
