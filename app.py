@@ -20,7 +20,8 @@ user_logged = {
         'user_uid': '',
         'user_name': '',
         'user_query': '',
-        'user_choice': ''
+        'user_choice': '',
+        'user_resources': None
         }
 
 
@@ -69,21 +70,15 @@ def background_thread():
                 'video_button': GPIO.input(25)
                 }
 
-        for k, v in button_state.items():
-            if v == False:
-                if k == 'text_button':
-                    user_logged['user_choice'] = 'text'
-                elif k == 'image_button':
-                    user_logged['user_choice'] = 'image'
-                elif k == 'sound_button':
-                    user_logged['user_choice'] = 'sound'
-                else:
-                    user_logged['user_choice'] = 'video'
-    
-
-
-        if button_state == False:
+        if button_state['text_button'] == False:
             user_logged['user_choice'] = 'text'
+            current_user = User.query.filter_by(username=user_logged['user_name']).first()
+            if current_user.resources >= 1:
+                current_user.resources -= 1
+            else:
+                print("You can't afford a text message!")
+            db.session.commit()
+
 
         socketio.sleep(1)
 
@@ -96,6 +91,7 @@ def background_thread():
         else:
             user_logged['user_uid'] = user_stored.uid
             user_logged['user_name'] = user_stored.username
+            user_logged['user_resources'] = user_stored.resources
 
        # if user_read != logged_user['user_uid']:
        #     query_result = api.request_tweets()

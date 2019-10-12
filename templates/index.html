@@ -7,6 +7,7 @@
     <p id="user_uid">No UID</p>
     <p id="user_name">No User</p>
 	<p id="user_result">No Result</p>
+	<p id="user_resources">None</p>
 	<video autoplay='autoplay'>
 			<source src="./media/movie.mp4" type="video/mp4">
 	</video>
@@ -19,6 +20,7 @@
                 $('#user_uid').html(res.data.user_uid);
                 $('#user_name').html(res.data.user_name);
 				$('#user_result').html(res.data.user_result);
+				$('#user_resources').html(res.data.user_resources);
             })
         })
     </script>
