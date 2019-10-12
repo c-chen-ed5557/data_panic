@@ -24,6 +24,7 @@ user_logged = {
         'user_resources': None
         }
 
+button_counter = 0
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -38,7 +39,7 @@ GPIO.setup(18, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 GPIO.setup(23, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 GPIO.setup(24, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 GPIO.setup(25, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-
+GPIO.setup(14, GPIO.OUT)
 
 # Check the resources the logged user have
 # If the remainder is more than required, trigger api query
@@ -47,6 +48,27 @@ def check_resources(user, requirement):
         return False
     else:
         return True
+
+def listen_button_event():
+    button_state = {
+        'text_button': GPIO.input(18),
+        'image_button': GPIO.input(23),
+        'sound_button': GPIO.input(24),
+        'video_button': GPIO.input(25)
+    }
+
+    if button_state['text_button'] == False:
+        global button_counter
+        button_counter += 1
+        print('Button Pressed', button_counter)
+        GPIO.output(14, GPIO.LOW)
+        user_logged['user_choice'] = 'text'
+        current_user = User.query.filter_by(username=user_logged['user_name']).first()
+        if current_user.resources >= 1:
+            current_user.resources -= 1
+        else:
+            print("You can't afford a text message!")
+        db.session.commit()
 
 @app.route('/')
 def index():
@@ -62,28 +84,10 @@ def connect():
 def background_thread():
     while True:
 
-        # Judge which button
-        button_state = {
-                'text_button': GPIO.input(18),
-                'image_button': GPIO.input(23),
-                'sound_button': GPIO.input(24),
-                'video_button': GPIO.input(25)
-                }
-
-        if button_state['text_button'] == False:
-            user_logged['user_choice'] = 'text'
-            current_user = User.query.filter_by(username=user_logged['user_name']).first()
-            if current_user.resources >= 1:
-                current_user.resources -= 1
-            else:
-                print("You can't afford a text message!")
-            db.session.commit()
-
-
         socketio.sleep(1)
+        # 1. first listen for RFID read from user, do user checks etc.
 
         uid_read = str(ser.readline().decode('utf-8'))[1:12]
-
         user_stored = User.query.filter_by(uid=uid_read).first()
 
         if user_stored is None:
@@ -93,12 +97,15 @@ def background_thread():
             user_logged['user_name'] = user_stored.username
             user_logged['user_resources'] = user_stored.resources
 
+        listen_button_event()
+        # listen_button_event()
+
        # if user_read != logged_user['user_uid']:
        #     query_result = api.request_tweets()
        #     logged_user['user_result'] = query_result
         #    logged_user['user_uid'] = user_read
          #   logged_user['log_status'] = True
-            socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+        socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
 
 class User(db.Model):
     __tablename__ = 'users'
