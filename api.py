@@ -2,8 +2,9 @@ import sys
 import re
 import requests
 import random
-# import spotipy
-# import spotipy.util as util
+import spotipy
+import spotipy.util as util
+import spotipy.oauth2 as oauth2
 import ast
 from twython import Twython
 from auth import (
@@ -14,6 +15,11 @@ from auth import (
     client_id,
     client_secret
 )
+
+# configure spotipy oauth credentials
+credentials = oauth2.SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
+token = credentials.get_access_token()
+spotify = spotipy.Spotify(auth=token)
 
 # function 'call_api' returns a random result from a certain
 # type of medium according to user's choice
@@ -124,3 +130,7 @@ def parse_tweets_content(string):
 #     token = util.prompt_for_user_token(client_id, client_secret)
     # if token:
         # sp.recommendations(auth=token)
+
+def request_music():
+    res = spotify.search(q='artist: ' + 'Pink Floyd', type='artist')
+    return res
