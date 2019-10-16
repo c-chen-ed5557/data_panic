@@ -15,7 +15,7 @@ printer = ThermalPrinter(uart)
 #    printer.print(request_tweets())
 def random_texts():
     texts_list = [print_quotes(), print_news(), print_tweets()]
-    texts_list[int(random.random()*3)]
+    texts_list[int(random.random()*3)+1]
 
 
 
@@ -24,7 +24,7 @@ def print_quotes():
     printer.print(data['quote'])
     printer.feed(2)
     printer.print('by: ' + data['by'])
-    printer.feed(2)
+    printer.feed(4)
 
 def print_news():
     data = request_news()
@@ -38,14 +38,14 @@ def print_news():
     
     if data['content'] == None:
         printer.print("Opps! It seems we did not find anything. What a pity.")
-        printer.feed(2)
+        printer.feed(4)
     else:
         printer.print('Content: ' + str(data['content']))
-        printer.feed(2)
+        printer.feed(4)
 
 def print_tweets():
     data = request_tweets()
     printer.print(str(data['username']) + ' says:')
     printer.feed(1)
     printer.print(str(data['content']))
-    printer.feed(2)
+    printer.feed(4)

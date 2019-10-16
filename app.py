@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for
 from flask_socketio import SocketIO, emit
 from threading import Lock
 from serial_reader import ser
@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import RPi.GPIO as GPIO
 import printer
+import sound
 import time
 import api
 import os
@@ -62,6 +63,8 @@ def request_text(channel):
         current_user.resources -= 1
         db.session.commit()
         print('You spend 1 point.')
+        user_logged['user_resources'] = current_user.resources
+        socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
     else:
         print('You cannot afford a text message.')
 #     else:
@@ -82,6 +85,7 @@ def request_sound(channel):
     if current_user.resources >= 3:
         # printer.print_tweets()
         print("You spent 3 points for a sound message!")
+        sound.play_random_sound()
         current_user.resources -= 3
         db.session.commit()
     else:
@@ -138,6 +142,7 @@ def background_thread():
             user_logged['user_resources'] = stored_user.resources
 
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+        print(user_logged['user_name'])
 
     #     uid_read = str(ser.readline().decode('utf-8'))[1:12]
     #     # user_stored = User.query.filter_by(uid=uid_read).first()
