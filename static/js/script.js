@@ -1,12 +1,17 @@
+var resources = 0;
+
 function setup() {
-    createCanvas(400, 400);
+    createCanvas(800, 800);
 }
 
 function draw() {
-    ellipse(50, 50, 80, 80);
-
+    background(51);
+    resources = document.getElementById('user_resources').innerHTML;
+    draw_resources(resources);
 }
 
-function draw_resources() {
-
+function draw_resources(number) {
+    for(let i=0;i<resources;i++){
+        ellipse(40*(i+1), 40, 40, 40);
+    }
 }

@@ -77,6 +77,8 @@ def request_image(channel):
         print("You spent 2 points for an image!")
         current_user.resources -= 2
         db.session.commit()
+        user_logged['user_resources'] = current_user.resources
+        socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
     else:
         print('You cannot afford an image message.')
 
@@ -88,6 +90,8 @@ def request_sound(channel):
         sound.play_random_sound()
         current_user.resources -= 3
         db.session.commit()
+        user_logged['user_resources'] = current_user.resources
+        socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
     else:
         print('You cannot afford a sound message.')
 

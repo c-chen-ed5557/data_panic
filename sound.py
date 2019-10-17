@@ -7,7 +7,8 @@ def play_random_sound():
     playlist = []
     for root, dirs, files in os.walk('./music'):
         playlist.append(files)
-    filename = playlist[0][int((len(playlist)+1) * random.random())]
+    random_number = int(len(playlist[0]) * random.random())
+    filename = playlist[0][random_number]
     print('Now playing ' + filename)
     os.system(cmd + filename)
 
