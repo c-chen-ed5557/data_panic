@@ -80,6 +80,9 @@ def request_image(channel):
         # printer.print_tweets()
         print("You spent 2 points for an image!")
         current_user.resources -= 2
+        new_activity = Activity(uid=user_logged['user_uid'], date=activity_time.split(' ')[0],
+                                time=activity_time.split(' ')[1], query='image')
+        db.session.add(new_activity)
         db.session.commit()
         user_logged['user_resources'] = current_user.resources
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
@@ -93,6 +96,9 @@ def request_sound(channel):
         print("You spent 3 points for a sound message!")
         sound.play_random_sound()
         current_user.resources -= 3
+        new_activity = Activity(uid=user_logged['user_uid'], date=activity_time.split(' ')[0],
+                                time=activity_time.split(' ')[1], query='sound')
+        db.session.add(new_activity)
         db.session.commit()
         user_logged['user_resources'] = current_user.resources
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
