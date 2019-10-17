@@ -65,6 +65,7 @@ def request_text(channel):
         print('You spend 1 point.')
         user_logged['user_resources'] = current_user.resources
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+
     else:
         print('You cannot afford a text message.')
 #     else:
@@ -146,7 +147,7 @@ def background_thread():
             user_logged['user_resources'] = stored_user.resources
 
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
-        print(user_logged['user_name'])
+        print(user_logged['user_name'], time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()))
 
     #     uid_read = str(ser.readline().decode('utf-8'))[1:12]
     #     # user_stored = User.query.filter_by(uid=uid_read).first()
@@ -195,9 +196,18 @@ class User(db.Model):
     uid = db.Column(db.String(64), unique=True, index=True)
     resources = db.Column(db.Integer)
 
+class Activity(db.Model):
+    __tablename__ = 'activities'
+    id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(64))
+    date = db.Column(db.String(64))
+    time = db.Column(db.String(64))
+    query = db.Column(db.String(64))
+
+
 @app.shell_context_processor
 def make_shell_context():
-    return dict(db=db, User=User)
+    return dict(db=db, User=User, Activity=Activity)
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
