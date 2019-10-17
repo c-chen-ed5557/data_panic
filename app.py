@@ -61,6 +61,9 @@ def request_text(channel):
         printer.print_tweets()
         print(text_requested)
         current_user.resources -= 1
+        activity_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+        new_activity = Activity(uid=user_logged['user_uid'], date=activity_time.split(' ')[0], time=activity_time.split(' ')[1], query='text')
+        db.session.add(new_activity)
         db.session.commit()
         print('You spend 1 point.')
         user_logged['user_resources'] = current_user.resources
