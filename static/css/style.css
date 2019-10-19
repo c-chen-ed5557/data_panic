@@ -1,10 +1,33 @@
 body {
     text-align: center;
-    background-color: #333333;
+    background-color: #111111;
+    margin: 0 auto;
 }
 
 p {
-    color: white;
-    font-family: Serif;
+    color: #00ff00;
     font-size: 32pt;
+    font-family: 'VT323', monospace;
+}
+
+canvas {
+    display: block;
+    margin: 0 auto;
+}
+
+video {
+    background-color: #111111;
+}
+
+#container {
+
+}
+
+#totems {
+    display: flex;
+    justify-content: center;
+}
+
+.totem {
+    height: 600px;
 }

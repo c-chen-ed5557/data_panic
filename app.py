@@ -10,6 +10,7 @@ import sound
 import time
 import api
 import os
+import led
  
 async_mode = None
 app = Flask(__name__)
@@ -20,7 +21,7 @@ thread_lock = Lock()
 
 user_logged = {
         'user_uid': '',
-        'user_name': '',
+        'user_name': 'No User',
         'user_query': '',
         'user_choice': '',
         'user_resources': None,
@@ -47,7 +48,13 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(18, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 GPIO.setup(23, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 GPIO.setup(16, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-# GPIO.setup(25, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+GPIO.setup(12, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+GPIO.setup(2, GPIO.OUT) # setup the blue light
+GPIO.setup(3, GPIO.OUT) # setup the red light
+GPIO.setup(4, GPIO.OUT) # setup the yellow light
+GPIO.setup(5, GPIO.OUT) # setup the green light
+
+
 
 def request_text(channel):
     # print(user_logged['user_name'])
@@ -57,6 +64,8 @@ def request_text(channel):
 #     GPIO.output(14, GPIO.HIGH)
     current_user = User.query.filter_by(username=user_logged['user_name']).first()
     if current_user.resources >= 1:
+        led.all_off()
+        led.blue_on()
         text_requested = api.request_tweets()
         printer.print_tweets()
         print(text_requested)
@@ -68,6 +77,7 @@ def request_text(channel):
         print('You spend 1 point.')
         user_logged['user_resources'] = current_user.resources
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+        led.all_on()
 
     else:
         print('You cannot afford a text message.')
@@ -92,6 +102,8 @@ def request_image(channel):
 def request_sound(channel):
     current_user = User.query.filter_by(username=user_logged['user_name']).first()
     if current_user.resources >= 3:
+        led.all_off()
+        led.yellow_on()
         # printer.print_tweets()
         print("You spent 3 points for a sound message!")
         sound.play_random_sound()
@@ -101,19 +113,36 @@ def request_sound(channel):
                                 time=activity_time.split(' ')[1], query='sound')
         db.session.add(new_activity)
         db.session.commit()
+        led.all_on()
         user_logged['user_resources'] = current_user.resources
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
     else:
         print('You cannot afford a sound message.')
 
-def request_video():
-    pass
+def request_video(channel):
+    current_user = User.query.filter_by(username=user_logged['user_name']).first()
+    if current_user.resources >= 5:
+        led.all_off()
+        led.red_on()
+        print("You spent 5 points for a sound message!")
+        current_user.resources -= 5
+        activity_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+        # write something here
+        new_activity = Activity(uid=user_logged['user_uid'], date=activity_time.split(' ')[0],
+                                time=activity_time.split(' ')[1], query='video')
+        db.session.add(new_activity)
+        db.session.commit()
+        led.all_on()
+        user_logged['user_resources'] = current_user.resources
+        user_logged['user_choice'] = 'video'
+        socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+
 
 
 GPIO.add_event_detect(18, GPIO.FALLING, callback=request_text)
 GPIO.add_event_detect(23, GPIO.FALLING, callback=request_image)
 GPIO.add_event_detect(16, GPIO.FALLING, callback=request_sound)
-# GPIO.add_event_detect(25, GPIO.FALLING, callback=request_video)
+GPIO.add_event_detect(12, GPIO.FALLING, callback=request_video)
 
 # Check the resources the logged user have
 # If the remainder is more than required, trigger api query
@@ -143,6 +172,7 @@ def connect():
 
 def background_thread():
     while True:
+        led.all_on()
         db.session.commit()
         socketio.sleep(1)
         # 1. first listen for RFID read from user, do user checks etc.
