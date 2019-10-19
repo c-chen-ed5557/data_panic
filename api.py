@@ -26,7 +26,8 @@ spotify = spotipy.Spotify(auth=token)
 def call_api(medium_choice):
 
     if medium_choice == 'text':
-        pass
+        text_list = [request_news, request_quotes, request_tweets]
+        return text_list[int(random.random() * 3)]()
     elif medium_choice == 'image':
         pass
     elif medium_choice == 'sound':

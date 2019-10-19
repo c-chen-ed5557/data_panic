@@ -14,10 +14,8 @@ printer = ThermalPrinter(uart)
 #    printer.feed(2)
 #    printer.print(request_tweets())
 def random_texts():
-    texts_list = [print_quotes(), print_news(), print_tweets()]
-    texts_list[int(random.random()*3)+1]
-
-
+    texts_list = [print_quotes, print_news, print_tweets]
+    texts_list[int(random.random()*3)]()
 
 def print_quotes():
     data = request_quotes()

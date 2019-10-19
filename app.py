@@ -78,9 +78,9 @@ def request_text(channel):
         user_logged['user_resources'] = current_user.resources
         user_logged['message'] = 'You queried a text message from us. This costs you one.'
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
-        text_requested = api.request_tweets()
-        printer.print_tweets()
-        print(text_requested)
+        # text_requested = api.request_tweets()
+        printer.random_texts()
+        # print(text_requested)
         led.all_on()
         user_logged['message'] = 'Your query is finished. What else do you want from us?'
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
