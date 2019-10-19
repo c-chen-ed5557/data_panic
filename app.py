@@ -25,7 +25,8 @@ user_logged = {
         'user_query': '',
         'user_choice': '',
         'user_resources': None,
-        'user_status': False
+        'user_status': False,
+        'message': 'What do you want to query from us?'
         }
 
 # button_counter = 0
@@ -66,20 +67,27 @@ def request_text(channel):
     if current_user.resources >= 1:
         led.all_off()
         led.blue_on()
-        text_requested = api.request_tweets()
-        printer.print_tweets()
-        print(text_requested)
         current_user.resources -= 1
         activity_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
-        new_activity = Activity(uid=user_logged['user_uid'], date=activity_time.split(' ')[0], time=activity_time.split(' ')[1], query='text')
+        new_activity = Activity(uid=user_logged['user_uid'], date=activity_time.split(' ')[0],
+                                time=activity_time.split(' ')[1], query='text')
         db.session.add(new_activity)
         db.session.commit()
         print('You spend 1 point.')
+        user_logged['user_choice'] = 'text'
         user_logged['user_resources'] = current_user.resources
+        user_logged['message'] = 'You queried a text message from us. This costs you one.'
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+        text_requested = api.request_tweets()
+        printer.print_tweets()
+        print(text_requested)
         led.all_on()
+        user_logged['message'] = 'Your query is finished. What else do you want from us?'
+        socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
 
     else:
+        user_logged['message'] = 'You cannot afford a text message.'
+        socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
         print('You cannot afford a text message.')
 #     else:
 #         print("You can't afford a text message!")
@@ -94,9 +102,12 @@ def request_image(channel):
                                 time=activity_time.split(' ')[1], query='image')
         db.session.add(new_activity)
         db.session.commit()
+        user_logged['user_choice'] = 'image'
         user_logged['user_resources'] = current_user.resources
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
     else:
+        user_logged['message'] = 'You cannot afford an image.'
+        socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
         print('You cannot afford an image message.')
 
 def request_sound(channel):
@@ -106,7 +117,7 @@ def request_sound(channel):
         led.yellow_on()
         # printer.print_tweets()
         print("You spent 3 points for a sound message!")
-        sound.play_random_sound()
+
         current_user.resources -= 3
         activity_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
         new_activity = Activity(uid=user_logged['user_uid'], date=activity_time.split(' ')[0],
@@ -115,8 +126,16 @@ def request_sound(channel):
         db.session.commit()
         led.all_on()
         user_logged['user_resources'] = current_user.resources
+        user_logged['message'] = 'You queried a sound message. This costs you three.'
+        user_logged['user_choice'] = 'sound'
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+        sound.play_random_sound()
+        user_logged['message'] = 'Your query is finished. What else do you want from us?'
+        socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+
     else:
+        user_logged['message'] = 'You cannot afford a sound message.'
+        socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
         print('You cannot afford a sound message.')
 
 def request_video(channel):
@@ -124,7 +143,7 @@ def request_video(channel):
     if current_user.resources >= 5:
         led.all_off()
         led.red_on()
-        print("You spent 5 points for a sound message!")
+        print("You spent 5 points for a video!")
         current_user.resources -= 5
         activity_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
         # write something here
@@ -135,6 +154,11 @@ def request_video(channel):
         led.all_on()
         user_logged['user_resources'] = current_user.resources
         user_logged['user_choice'] = 'video'
+        user_logged['message'] = 'You queried a video from us. This costs all your points.'
+        socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+    else:
+        print('You cannot afford a video.')
+        user_logged['message'] = 'You cannot afford a video.'
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
 
 
@@ -185,6 +209,7 @@ def background_thread():
             user_logged['user_uid'] = stored_user.uid
             user_logged['user_name'] = stored_user.username
             user_logged['user_resources'] = stored_user.resources
+            user_logged['message'] = 'What do you want to query from us?'
 
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
         print(user_logged['user_name'], time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()))

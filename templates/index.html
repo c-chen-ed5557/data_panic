@@ -10,12 +10,10 @@
 
 {% block body %}
     <div id="container">
-<!--    <p id="user_uid">No UID</p>-->
     <p id="user_name">No User</p>
-<!--	<p id="user_result">No Result</p>-->
-    <p id="query_information"></p>
+    <p id="message"></p>
 	<p id="user_resources">None</p>
-	<video id='video' autoplay='autoplay' width="480" height="320" src="https://www.w3schools.com/html/mov_bbb.mp4"></video>
+	<video id='video' autoplay='autoplay' width="480" height="320" src=""></video>
     </div>
     <div id="totems">
         <img class="totem" src="{{ url_for('static', filename='images/text.svg') }}">
@@ -25,6 +23,17 @@
     </div>
 
     <script type="text/javascript">
+        var video = document.getElementById("video");
+
+        video.addEventListener('ended', function () {
+            $('#video').attr('src', '');
+            $('#video').attr('autoplay', 'autoplay');
+            $('#video')[0].load();
+            $('#message').html('You query is finished. What else do you want from us?')
+        })
+
+        var videoList = [];
+
         $(document).ready(function () {
             namespace = '/conn';
             var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
@@ -33,9 +42,9 @@
                 // $('#user_uid').html(res.data.user_uid);
                 if(res.data.user_name !== 'No User') {
                     $('#user_name').html('Greetings, ' + res.data.user_name + '!');
-                    $('#query_information').html('What do you want to query from us?')
+                    $('#message').html(res.data.message)
                     // $('#user_result').html(res.data.user_result);
-                    $('#user_resources').html(res.data.user_resources);
+                    $('#user_resources').html('You still have ' + res.data.user_resources + ' points.');
                 }
                 if(res.data.user_choice == 'video') {
                     $("#video").attr('src', "https://www.w3schools.com/html/mov_bbb.mp4");
