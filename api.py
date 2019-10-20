@@ -58,7 +58,8 @@ def parse_news_content(string):
 
 # This is to request a random quote via quotes api.
 def request_quotes():
-    url = "https://yusufnb-quotes-v1.p.rapidapi.com/widget/~einstein.json"
+    name_list = ['einstein', 'newton', 'edison', 'tesla', 'franklin', 'putin', 'bayes', 'hume', 'robert', 'martin', 'hawking', 'turing', 'darwin', 'dylan', 'john']
+    url = "https://yusufnb-quotes-v1.p.rapidapi.com/widget/~" + str(name_list[int(random.random()*len(name_list))]) + ".json"
 
     headers = {
         'x-rapidapi-host': "yusufnb-quotes-v1.p.rapidapi.com",
