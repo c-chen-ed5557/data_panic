@@ -2,11 +2,12 @@ body {
     text-align: left;
     background-color: #111111;
     margin: 0 auto;
+    overflow-x:hidden;
 }
 
 p {
     color: #00ff00;
-    font-size: 32pt;
+    font-size: 24pt;
     font-family: 'VT323', monospace;
 }
 
@@ -31,7 +32,9 @@ video {
 }
 
 #container {
-
+    position: relative;
+    top: 200px;
+    left: 200px;
 }
 
 #totems {

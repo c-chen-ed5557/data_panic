@@ -11,6 +11,10 @@ GPIO.setup(4, GPIO.OUT)
 GPIO.setup(5, GPIO.OUT)
 # setup the red light
 GPIO.setup(6, GPIO.OUT)
+GPIO.setup(7, GPIO.OUT)
+# setup the green light
+GPIO.setup(8, GPIO.OUT)
+GPIO.setup(9, GPIO.OUT)
 
 def blue_on():
     GPIO.output(2, GPIO.HIGH)
@@ -30,9 +34,21 @@ def yellow_off():
 
 def red_on():
     GPIO.output(6, GPIO.HIGH)
+    GPIO.output(7, GPIO.HIGH)
 #
-def yellow_off():
+def red_off():
     GPIO.output(6, GPIO.LOW)
+    GPIO.output(7, GPIO.LOW)
+
+def green_on():
+    GPIO.output(8, GPIO.HIGH)
+    GPIO.output(9, GPIO.HIGH)
+
+def green_off():
+    GPIO.output(8, GPIO.LOW)
+    GPIO.output(9, GPIO.LOW)
+
+
 #
 # def green_on():
 #     GPIO.output(5, GPIO.HIGH)
@@ -46,6 +62,9 @@ def all_on():
     GPIO.output(4, GPIO.HIGH)
     GPIO.output(5, GPIO.HIGH)
     GPIO.output(6, GPIO.HIGH)
+    GPIO.output(7, GPIO.HIGH)
+    GPIO.output(8, GPIO.HIGH)
+    GPIO.output(9, GPIO.HIGH)
 
 def all_off():
     GPIO.output(2, GPIO.LOW)
@@ -53,3 +72,6 @@ def all_off():
     GPIO.output(4, GPIO.LOW)
     GPIO.output(5, GPIO.LOW)
     GPIO.output(6, GPIO.LOW)
+    GPIO.output(7, GPIO.LOW)
+    GPIO.output(8, GPIO.LOW)
+    GPIO.output(9, GPIO.LOW)

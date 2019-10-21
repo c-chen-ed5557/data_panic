@@ -2,19 +2,19 @@
     <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
+<!--    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>-->
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css?family=VT323&display=swap" rel="stylesheet">
 {% endblock %}
 
 
 {% block body %}
+    <video id="bg" autoplay="autoplay" src="{{ url_for('static', filename='videos/3.webm') }}"></video>
     <div id="container">
-        <video id="bg" autoplay="autoplay" src="{{ url_for('static', filename='videos/3.webm') }}">
 <!--            <source src="{{ url_for('static', filename='videos/1.webm') }}" type="video/webm">-->
 <!--            <source src="{{ url_for('static', filename='videos/2.webm') }}" type="video/webm">-->
 <!--            <source src="{{ url_for('static', filename='videos/3.webm') }}" type="video/webm">-->
-        </video>
+
         <p id="user_name">No User</p>
         <p id="message"></p>
         <p id="user_resources">None</p>
@@ -50,9 +50,14 @@
                 "{{ url_for('static', filename='videos/12.webm') }}",
                 "{{ url_for('static', filename='videos/13.webm') }}",
                 "{{ url_for('static', filename='videos/14.webm') }}",
-
-            ]
-            random_bg = list[parseInt(Math.random() * 14)];
+                "{{ url_for('static', filename='videos/15.webm') }}",
+                "{{ url_for('static', filename='videos/16.webm') }}",
+                "{{ url_for('static', filename='videos/17.webm') }}",
+                "{{ url_for('static', filename='videos/18.webm') }}",
+                "{{ url_for('static', filename='videos/19.webm') }}",
+                "{{ url_for('static', filename='videos/20.webm') }}"
+            ];
+            random_bg = list[parseInt(Math.random() * 20)];
             $('#bg').attr('src', random_bg);
             $('#bg')[0].load();
         })
