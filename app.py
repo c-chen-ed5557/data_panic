@@ -124,12 +124,13 @@ def request_sound(channel):
                                 time=activity_time.split(' ')[1], query='sound')
         db.session.add(new_activity)
         db.session.commit()
-        led.all_on()
+
         user_logged['user_resources'] = current_user.resources
         user_logged['message'] = 'You queried a sound message. This costs you three.'
         user_logged['user_choice'] = 'sound'
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
         sound.play_random_sound()
+        led.all_on()
         user_logged['message'] = 'Your query is finished. What else do you want from us?'
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
 
