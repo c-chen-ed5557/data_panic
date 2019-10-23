@@ -58,6 +58,7 @@ GPIO.setup(5, GPIO.OUT) # setup the green light
 
 
 def request_text(channel):
+    user_logged['user_choice'] = 'text'
     # print(user_logged['user_name'])
 #     data = api.request_quotes()
 #     print(data)
@@ -93,6 +94,7 @@ def request_text(channel):
 #         print("You can't afford a text message!")
 
 def request_image(channel):
+    user_logged['user_choice'] = 'image'
     current_user = User.query.filter_by(username=user_logged['user_name']).first()
     if current_user.resources >= 2:
         # printer.print_tweets()
@@ -111,10 +113,11 @@ def request_image(channel):
         print('You cannot afford an image message.')
 
 def request_sound(channel):
+    user_logged['user_choice'] = 'sound'
     current_user = User.query.filter_by(username=user_logged['user_name']).first()
     if current_user.resources >= 3:
         led.all_off()
-        led.yellow_on()
+        led.green_on()
         # printer.print_tweets()
         print("You spent 3 points for a sound message!")
 
@@ -157,6 +160,7 @@ def request_video(channel):
         user_logged['user_choice'] = 'video'
         user_logged['message'] = 'You queried a video from us. This costs all your points.'
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+        
     else:
         print('You cannot afford a video.')
         user_logged['message'] = 'You cannot afford a video.'
@@ -188,6 +192,11 @@ GPIO.add_event_detect(12, GPIO.FALLING, callback=request_video)
 def index():
     return render_template('index.html')
 
+
+@app.route('/viz')
+def viz():
+    return render_template('visualisation.html')
+
 @socketio.on('connect', namespace='/conn')
 def connect():
     global thread
@@ -197,6 +206,7 @@ def connect():
 
 def background_thread():
     while True:
+        user_logged['user_choice'] = ''
         led.all_on()
         db.session.commit()
         socketio.sleep(1)

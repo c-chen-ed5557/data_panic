@@ -1,0 +1,95 @@
+{% block head %}
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
+<!--    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.js"></script>-->
+<!--    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>-->
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css?family=VT323&display=swap" rel="stylesheet">
+{% endblock %}
+
+
+{% block body %}
+<!--    <video id="bg" autoplay="autoplay" src="{{ url_for('static', filename='videos/3.webm') }}"></video>-->
+    <div id="container">
+<!--            <source src="{{ url_for('static', filename='videos/1.webm') }}" type="video/webm">-->
+<!--            <source src="{{ url_for('static', filename='videos/2.webm') }}" type="video/webm">-->
+<!--            <source src="{{ url_for('static', filename='videos/3.webm') }}" type="video/webm">-->
+
+<!--        <p id="user_name">No User</p>-->
+        <p id="message"></p>
+<!--        <p id="user_resources">None</p>-->
+<!--        <video id='video' autoplay='autoplay' width="480" height="320" src=""></video>-->
+    </div>
+<!--    <div id="totems">-->
+<!--        <img class="totem" src="{{ url_for('static', filename='images/text.svg') }}">-->
+<!--        <img class="totem" src="{{ url_for('static', filename='images/image.svg') }}">-->
+<!--        <img class="totem" src="{{ url_for('static', filename='images/sound.svg') }}">-->
+<!--        <img class="totem" src="{{ url_for('static', filename='images/video.svg') }}">-->
+<!--    </div>-->
+
+    <script type="text/javascript">
+        // var video = document.getElementById("video");
+        // var bg = document.getElementById("bg");
+
+        // bg.addEventListener('ended', function () {
+        // //     list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+        // //     num = list[parseInt(Math.random() * list.length)];
+        // //     source = String("{{ url_for('static', filename='videos/" +  + ".webm') }}");
+        //     list = [
+        //         "{{ url_for('static', filename='videos/1.webm') }}",
+        //         "{{ url_for('static', filename='videos/2.webm') }}",
+        //         "{{ url_for('static', filename='videos/3.webm') }}",
+        //         "{{ url_for('static', filename='videos/4.webm') }}",
+        //         "{{ url_for('static', filename='videos/5.webm') }}",
+        //         "{{ url_for('static', filename='videos/6.webm') }}",
+        //         "{{ url_for('static', filename='videos/7.webm') }}",
+        //         "{{ url_for('static', filename='videos/8.webm') }}",
+        //         "{{ url_for('static', filename='videos/9.webm') }}",
+        //         "{{ url_for('static', filename='videos/10.webm') }}",
+        //         "{{ url_for('static', filename='videos/11.webm') }}",
+        //         "{{ url_for('static', filename='videos/12.webm') }}",
+        //         "{{ url_for('static', filename='videos/13.webm') }}",
+        //         "{{ url_for('static', filename='videos/14.webm') }}",
+        //         "{{ url_for('static', filename='videos/15.webm') }}",
+        //         "{{ url_for('static', filename='videos/16.webm') }}",
+        //         "{{ url_for('static', filename='videos/17.webm') }}",
+        //         "{{ url_for('static', filename='videos/18.webm') }}",
+        //         "{{ url_for('static', filename='videos/19.webm') }}",
+        //         "{{ url_for('static', filename='videos/20.webm') }}"
+        //     ];
+        //     random_bg = list[parseInt(Math.random() * 20)];
+        //     $('#bg').attr('src', random_bg);
+        //     $('#bg')[0].load();
+        // })
+        //
+        // video.addEventListener('ended', function () {
+        //     $('#video').attr('src', '');
+        //
+        //     $('#video')[0].load();
+        //     $('#message').html('You query is finished. What else do you want from us?')
+        // })
+        //
+        // var videoList = [];
+
+        $(document).ready(function () {
+            namespace = '/conn';
+            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+            socket.on('server_response', function (res) {
+                // console.log(res.data);
+                // // $('#user_uid').html(res.data.user_uid);
+                // if(res.data.user_name !== 'No User') {
+                //     $('#user_name').html('Greetings, ' + res.data.user_name + '!');
+                //     $('#message').html(res.data.message)
+                //     // $('#user_result').html(res.data.user_result);
+                //     $('#user_resources').html('You still have ' + res.data.user_resources + ' points.');
+                // }
+                // if(res.data.user_choice == 'video') {
+                //     $("#video").attr('src', "https://www.w3schools.com/html/mov_bbb.mp4");
+                //     $('#video').attr('autoplay', 'autoplay');
+                //     $("#video")[0].load();
+                // }
+                $("#message").html(res.data.user_name);
+            })
+        })
+    </script>
+{% endblock %}
