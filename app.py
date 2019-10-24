@@ -100,11 +100,13 @@ def request_image(channel):
         # printer.print_tweets()
         print("You spent 2 points for an image!")
         current_user.resources -= 2
+        activity_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
         new_activity = Activity(uid=user_logged['user_uid'], date=activity_time.split(' ')[0],
                                 time=activity_time.split(' ')[1], query='image')
         db.session.add(new_activity)
         db.session.commit()
         user_logged['user_choice'] = 'image'
+        user_logged['message'] = 'You queried an image from us. This costs you two.'
         user_logged['user_resources'] = current_user.resources
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
     else:
