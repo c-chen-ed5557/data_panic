@@ -19,6 +19,7 @@
         <p id="message"></p>
         <p id="user_resources">None</p>
         <video id='video' autoplay='autoplay' width="480" height="320" src=""></video>
+        <img src="" width="400" height="400" id="img">
     </div>
 <!--    <div id="totems">-->
 <!--        <img class="totem" src="{{ url_for('static', filename='images/text.svg') }}">-->
@@ -87,6 +88,9 @@
                     $("#video").attr('src', "https://www.w3schools.com/html/mov_bbb.mp4");
                     $('#video').attr('autoplay', 'autoplay');
                     $("#video")[0].load();
+                }
+                if(res.data.user_choice == 'image') {
+                    $("#img").attr('src', res.data.image_url)
                 }
             })
         })

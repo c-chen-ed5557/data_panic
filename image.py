@@ -9,5 +9,6 @@ code=''
 auth=Auth(client_id, client_secret, redirect_uri, code=code)
 api=Api(auth)
 
-image = api.photo.random()
-print(image[0])
+def random_image():
+    image = api.photo.random()
+    return image

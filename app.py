@@ -4,6 +4,7 @@ from threading import Lock
 from serial_reader import ser
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from image import random_image
 import RPi.GPIO as GPIO
 import printer
 import sound
@@ -26,7 +27,8 @@ user_logged = {
         'user_choice': '',
         'user_resources': None,
         'user_status': False,
-        'message': 'What do you want to query from us?'
+        'message': 'What do you want to query from us?',
+        'image_url': ''
         }
 
 # button_counter = 0
@@ -105,10 +107,15 @@ def request_image(channel):
                                 time=activity_time.split(' ')[1], query='image')
         db.session.add(new_activity)
         db.session.commit()
+        image = random_image()
+        image_url = image[0].urls.full
+        user_logged['image_url'] = image_url
         user_logged['user_choice'] = 'image'
         user_logged['message'] = 'You queried an image from us. This costs you two.'
         user_logged['user_resources'] = current_user.resources
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
+        user_logged['image_url'] = ''
+        user_logged['user_choice'] = ''
     else:
         user_logged['message'] = 'You cannot afford an image.'
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
@@ -162,7 +169,7 @@ def request_video(channel):
         user_logged['user_choice'] = 'video'
         user_logged['message'] = 'You queried a video from us. This costs all your points.'
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
-        
+        user_logged['user_choice'] = ''
     else:
         print('You cannot afford a video.')
         user_logged['message'] = 'You cannot afford a video.'

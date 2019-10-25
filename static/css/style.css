@@ -45,3 +45,7 @@ video {
 .totem {
     height: 600px;
 }
+
+#img {
+    display: block;
+}
