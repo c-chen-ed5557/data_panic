@@ -17,7 +17,7 @@ GPIO.add_event_detect(switch, GPIO.FALLING, callback=my_callback)
 
 while True:
     time.sleep(1)
-    # button_status = GPIO.input(18)
+    button_status = GPIO.input(18)
     # if GPIO.input(18) == LOW and GPIO.input(18) != button_status:
     #     GPIO.output(14, GPIO.HIGH)
     #     button_counter += 1

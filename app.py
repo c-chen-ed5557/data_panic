@@ -116,6 +116,7 @@ def request_image(channel):
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
         user_logged['image_url'] = ''
         user_logged['user_choice'] = ''
+        socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
     else:
         user_logged['message'] = 'You cannot afford an image.'
         socketio.emit('server_response', {'data': user_logged}, namespace='/conn')
